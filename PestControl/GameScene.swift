@@ -69,9 +69,6 @@ class GameScene: SKScene {
     // 4
     bugsNode.name = "Bugs"
     addChild(bugsNode)
-//    bugsNode.enumerateChildNodes(withName: "bug", using: {node, _ in
-//      node.isPaused = false
-//    })
 
     // 5
     bugsMap.removeFromParent()
