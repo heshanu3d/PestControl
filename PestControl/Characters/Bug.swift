@@ -17,7 +17,9 @@ class Bug: SKSpriteNode {
   var animations: [SKAction] = []
   
   required init?(coder aDecoder: NSCoder) {
-    fatalError("Use init()")
+    super.init(coder: aDecoder)
+    animations = aDecoder.decodeObject(forKey: "Bug.animations")
+      as! [SKAction]
   }
   
   init(){
@@ -27,17 +29,20 @@ class Bug: SKSpriteNode {
     physicsBody = SKPhysicsBody(circleOfRadius: size.width/2)
     physicsBody!.restitution = 0.5
     physicsBody!.allowsRotation = false
+    physicsBody?.categoryBitMask = PhysicsCategory.Bug
     createAnimations(character: "bug")
   }
   
-  func move() {
+  @objc func moveBug() {
     // 1
     let randomX = CGFloat(Int.random(min: -1, max: 1))
     let randomY = CGFloat(Int.random(min: -1, max: 1))
     let vector = CGVector(dx: randomX * BugSettings.bugDistance,
                           dy: randomY * BugSettings.bugDistance)
     let moveBy = SKAction.move(by: vector, duration: 1)
-    let moveAgain = SKAction.run(move)
+//    let moveAgain = SKAction.run(move)
+    
+    let moveAgain = SKAction.perform(#selector(moveBug), onTarget: self)
     
     let direction = animationDirection(for: vector)
     // 2
@@ -49,6 +54,20 @@ class Bug: SKSpriteNode {
     // 3
     run(animations[direction.rawValue], withKey: "animation")
     run(SKAction.sequence([moveBy, moveAgain]))
+  }
+  
+  func die() {
+    removeAllActions()
+    texture = SKTexture(pixelImageNamed: "bug_lt1")
+    yScale = -1
+    physicsBody = nil
+    run(SKAction.sequence([SKAction.fadeOut(withDuration: 3),
+                           SKAction.removeFromParent()]))
+  }
+  
+  override func encode(with aCoder: NSCoder) {
+    aCoder.encode(animations, forKey: "Bug.animations")
+    super.encode(with: aCoder)
   }
 }
 
